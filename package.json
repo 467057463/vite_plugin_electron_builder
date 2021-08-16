@@ -1,12 +1,20 @@
 {
-  "name": "vite_plugin_electron_builder",
-  "version": "1.0.0",
+  "name": "vite-plugin-electron-builder",
+  "version": "0.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build-bundle": "esbuild src/index.js --bundle --platform=node --target=node12 --outfile=dist/index.js"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "chalk": "^4.1.2",
+    "electron": "^13.1.9",
+    "electron-builder": "^22.11.7",
+    "esbuild": "^0.12.20",
+    "fs-extra": "^8.1.0"
+  }
 }
