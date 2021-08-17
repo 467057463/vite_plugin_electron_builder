@@ -1,8 +1,8 @@
-const dev = require('./dev');
+import handleDev from './handleDev';
+import handleBuild from './handleBuild';
 
-module.exports = function viteElectron(pluginConfig){
+export default function viteElectron(pluginConfig){
   let config;
-
   return{
     name: 'vite-plugin-electron-builder',
 
@@ -19,13 +19,14 @@ module.exports = function viteElectron(pluginConfig){
       httpServer.on('listening', (err, app) => {
         const address = httpServer.address();
         config.env.DEV_SERVER_URL = `http://${address.address}:${address.port}`;
-        dev(config)
+        handleDev(config)
       })
     },
 
     // 生产模式/build
-    // closeBundle(){ 
-    //   build(config)
-    // }
+    closeBundle(){ 
+      handleBuild(config)
+    }
   }
 }
+

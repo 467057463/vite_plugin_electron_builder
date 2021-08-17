@@ -1,7 +1,7 @@
-const electron = require('electron');
-const path  = require('path');
-const { spawn }  = require('child_process');
-const { log, mainProcessBuild, preloadBuild }  = require('./util');
+import electron from 'electron';
+import path  from 'path';
+import { spawn }  from 'child_process';
+import { log, mainProcessBuild, preloadBuild }  from './util';
 
 const startTime = Date.now();
 let electronProcess = null;
@@ -46,7 +46,7 @@ function startElectron(config){
   })
 }
 
-exports = async function(config){
+export default async function(config){
   // remove(path.join(config.root, config.build.outDir))
   // build preload 文件和主进程文件
   await Promise.all([

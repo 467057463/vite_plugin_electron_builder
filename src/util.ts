@@ -1,9 +1,9 @@
-const { build } =require('esbuild');
-const path  =require('path');
-const chalk =require('chalk');
-const fs =require('fs/promises');
+import { build } from 'esbuild';
+import path  from 'path';
+import chalk from 'chalk';
+import fs from 'fs/promises';
 
-module.exports = async function mainProcessBuild(viteConfig, mode, onRebuild){
+export async function mainProcessBuild(viteConfig, mode, onRebuild){
   const define = {};
   for (const k in viteConfig.env) {
     define[`process.env.${k}`] = JSON.stringify(viteConfig.env[k])
@@ -41,7 +41,7 @@ module.exports = async function mainProcessBuild(viteConfig, mode, onRebuild){
     buildConfig = {
       ...buildConfig,
       sourcemap: 'inline',
-      inject: [path.join(__dirname, 'inject', 'devInject.js')],
+      inject: [path.join(__dirname, '..', 'inject', 'devInject.js')],
       watch: {
         onRebuild
       }
@@ -49,7 +49,7 @@ module.exports = async function mainProcessBuild(viteConfig, mode, onRebuild){
   } else {
     buildConfig = {
       ...buildConfig,
-      inject: [path.join(__dirname, 'inject', 'buildInject.js')],
+      inject: [path.join(__dirname, '..', 'inject', 'buildInject.js')],
       // minify: true,
     }
   }
@@ -65,14 +65,14 @@ const logLevelMap = {
   warning: 'yellow',
   error: 'red'
 }
-module.exports = function log(logLevel, message){
+export function log(logLevel, message){
   const color = logLevelMap[logLevel]
   console.log(
     `${chalk[color].bold(`[vite_plugin_electron_builder]`)} ${message}`
   )
 }
 
-module.exports = async function preloadBuild(viteConfig, mode = 'dev'){
+export async function preloadBuild(viteConfig, mode = 'dev'){
   const entryPoints = [];
   const preloadPath = path.join(viteConfig.root, 'src', 'preload');
   const res = await fs.readdir(preloadPath);
