@@ -32,7 +32,7 @@ export async function mainProcessBuild(viteConfig, mode, onRebuild?){
               }
               dependenciesSet.add(id);
               return {
-                external: true
+                external: id !== 'vite-plugin-electron-builder/lib' 
               }
             }
           })
