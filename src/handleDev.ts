@@ -36,9 +36,9 @@ function startElectron(config){
   ]
 
   electronProcess = child.spawn(electron, args)
-  // electronProcess.stdout.on('data', data => {
-  //   log('info', data)
-  // })
+  electronProcess.stdout.on('data', data => {
+    log('info', data)
+  })
   electronProcess.stderr.on('data', data => {
     log('info', data)
   })

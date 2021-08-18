@@ -25,7 +25,7 @@ export async function mainProcessBuild(viteConfig, mode, onRebuild?){
         name: 'externalize-deps',
         setup(build) {
           build.onResolve({ filter: /.*/ }, (args) => {
-            const id = args.path
+            let id = args.path
             if (id[0] !== '.' && !path.isAbsolute(id)) {
               if(id[0] !== '@' && id.split("/").length > 1){
                 id = id.split("/")[0];
