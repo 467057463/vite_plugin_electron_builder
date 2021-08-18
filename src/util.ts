@@ -27,7 +27,10 @@ export async function mainProcessBuild(viteConfig, mode, onRebuild?){
           build.onResolve({ filter: /.*/ }, (args) => {
             const id = args.path
             if (id[0] !== '.' && !path.isAbsolute(id)) {
-              dependenciesSet.add(id.split('/')[0]);
+              if(id[0] !== '@' && id.split("/").length > 1){
+                id = id.split("/")[0];
+              }
+              dependenciesSet.add(id);
               return {
                 external: true
               }
