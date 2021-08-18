@@ -1,10 +1,11 @@
+// @ts-nocheck
 // import { build } from'esbuild';
 import path from'path';
 import { build } from'electron-builder';
-import { stat, remove, writeFile } from'fs-extra';
+import { writeFile } from'fs-extra';
 import { mainProcessBuild, log, preloadBuild } from './util';
 
-async function generatePackageJson(config, dependencies) {
+async function generatePackageJson(config: any, dependencies) {
   const original = require(path.join(config.root, './package.json'))
   const result = {
     name: original.name,
@@ -16,7 +17,10 @@ async function generatePackageJson(config, dependencies) {
     dependencies: 
       Object.entries(original.dependencies)
       .filter(item => dependencies.includes(item[0]))
-      .reduce((object, entry) => ({ ...object, [entry[0]]: entry[1] }), {})
+      .reduce((object, entry) => ({ ...object, [entry[0]]: entry[1] }), {}),
+    // devDependencies: {
+    //   "electron": "^13.1.8",
+    // }
   }
   await writeFile('dist/package.json', JSON.stringify(result))
 }
@@ -49,13 +53,13 @@ export default async function(config){
         ],
         artifactName: '${productName} Setup ${version}.${ext}',
       },
-      // nsis: {
-      //   oneClick: false,
-      //   language: '2052',
-      //   perMachine: true,
-      //   allowToChangeInstallationDirectory: true,
-      //   include: "build/installer.nsh"
-      // },
+      nsis: {
+        oneClick: false,
+        language: '2052',
+        perMachine: true,
+        allowToChangeInstallationDirectory: true,
+        include: "build/installer.nsh"
+      },
     }
   })
   log('info', `electron 打包完毕, 用时${(Date.now() - startTime) / 1000}s`)

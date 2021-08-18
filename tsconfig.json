@@ -12,11 +12,8 @@
     "noImplicitOverride": true,
     "noUnusedLocals": true,
     "esModuleInterop": true,
+    "removeComments": true,
+    "noImplicitAny": false,
     "baseUrl": ".",
-    "paths": {
-      // vite typings uses custom paths that is patched into relative paths during build
-      // this is a shim that makes even dev-time vite typings work for plugin-vue
-      "types/*": ["../vite/types/*"]
-    }
   }
 }

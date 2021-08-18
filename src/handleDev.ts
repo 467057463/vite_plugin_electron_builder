@@ -1,17 +1,18 @@
+// @ts-nocheck
 import electron from 'electron';
 import path  from 'path';
-import { spawn }  from 'child_process';
+import * as child from 'child_process';
 import { log, mainProcessBuild, preloadBuild }  from './util';
 
 const startTime = Date.now();
-let electronProcess = null;
+let electronProcess: null | child.ChildProcess = null;
 let manualRestart = false;
 
 // 编译主进程文件
 async function buildMain(config){
   function onRebuild(error, result){
     if (error){
-      throw('watch build failed:', error)
+      throw(error)
     }
     if(electronProcess && electronProcess.kill){      
       log('info',  `electron 即将重启...`)
@@ -34,7 +35,7 @@ function startElectron(config){
     path.join(config.root, 'dist', './main.js')
   ]
 
-  electronProcess = spawn(electron, args)
+  electronProcess = child.spawn(electron, args)
   // electronProcess.stdout.on('data', data => {
   //   log('info', data)
   // })

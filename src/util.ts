@@ -1,9 +1,10 @@
+// @ts-nocheck
 import { build } from 'esbuild';
 import path  from 'path';
 import chalk from 'chalk';
 import fs from 'fs/promises';
 
-export async function mainProcessBuild(viteConfig, mode, onRebuild){
+export async function mainProcessBuild(viteConfig, mode, onRebuild?){
   const define = {};
   for (const k in viteConfig.env) {
     define[`process.env.${k}`] = JSON.stringify(viteConfig.env[k])
