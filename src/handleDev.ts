@@ -3,13 +3,14 @@ import electron from 'electron';
 import path  from 'path';
 import * as child from 'child_process';
 import { log, mainProcessBuild, preloadBuild }  from './util';
+import { Config } from './index';
 
 const startTime = Date.now();
 let electronProcess: null | child.ChildProcess = null;
 let manualRestart = false;
 
 // 编译主进程文件
-async function buildMain(config){
+async function buildMain(config: Config){
   function onRebuild(error, result){
     if (error){
       throw(error)
@@ -29,7 +30,7 @@ async function buildMain(config){
   await mainProcessBuild(config, 'dev', onRebuild)
 }
 // 启动/重新启动 electron
-function startElectron(config){
+function startElectron(config: Config){
   const args = [
     '--inspect=5858',
     path.join(config.root, 'dist', './main.js')
@@ -47,7 +48,7 @@ function startElectron(config){
   })
 }
 
-export default async function(config){
+export default async function(config: Config){
   // remove(path.join(config.root, config.build.outDir))
   // build preload 文件和主进程文件
   await Promise.all([

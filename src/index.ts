@@ -1,22 +1,28 @@
-import { Plugin } from 'vite'
-
+import { Plugin, ResolvedConfig, ViteDevServer } from 'vite'
+import { Configuration as ElectronBuilderOptions } from 'electron-builder';
 import handleDev from './handleDev';
 import handleBuild from './handleBuild';
 
 // plugin 配置项
-export interface Options{
+export interface PluginOptions{
   mainProcessFile?: string
   preloadDir?: string
-  builderOptions?: any
+  builderOptions?: ElectronBuilderOptions
 }
 
-export default function viteElectron(pluginConfig: Options = {}): Plugin {
-  let config:any;
+// 合并 vite confing 和 插件 config
+export interface Config extends ResolvedConfig{ 
+  pluginConfig: PluginOptions
+}
+
+export default function viteElectron(pluginConfig: PluginOptions = {}): Plugin {
+  let config: Config;
+
   return{
     name: 'vite-plugin-electron-builder',
 
     // 存储 config 变量
-    configResolved(resolvedConfig) {
+    configResolved(resolvedConfig: ResolvedConfig) {
       config = {
         ...resolvedConfig,
         pluginConfig
@@ -24,8 +30,9 @@ export default function viteElectron(pluginConfig: Options = {}): Plugin {
     },
 
     // 开发模式/dev
-    configureServer({ httpServer }: {httpServer: any}) {
-      httpServer.on('listening', () => {
+    // @todo httpServer 
+    configureServer({ httpServer }: ViteDevServer) {
+      httpServer?.on('listening', () => {
         const address: any = httpServer.address();
         config.env.DEV_SERVER_URL = `http://${address.address}:${address.port}`;
         handleDev(config)
