@@ -1,11 +1,10 @@
-// @ts-nocheck
-// import { build } from'esbuild';
 import path from'path';
-import { build } from'electron-builder';
+import { build as electronBuilder } from'electron-builder';
 import { writeFile } from'fs-extra';
+import { Config } from './index'
 import { mainProcessBuild, log, preloadBuild } from './util';
 
-async function generatePackageJson(config: any, dependencies) {
+async function generatePackageJson(config: Config, dependencies) {
   const original = require(path.join(config.root, './package.json'))
   const result = {
     name: original.name,
@@ -18,49 +17,24 @@ async function generatePackageJson(config: any, dependencies) {
       Object.entries(original.dependencies)
       .filter(item => dependencies.includes(item[0]))
       .reduce((object, entry) => ({ ...object, [entry[0]]: entry[1] }), {}),
-    // devDependencies: {
-    //   "electron": "^13.1.8",
-    // }
   }
-  await writeFile('dist/package.json', JSON.stringify(result))
+  await writeFile(path.join(config.build.outDir, 'package.json'), JSON.stringify(result))
 }
 
-export default async function(config){
-  const startTime = Date.now();
-  log('info', `正在打包electron...`)
-  await preloadBuild(config, 'build');
-  const { dependencies } = await mainProcessBuild(config, 'build')
-  // console.log(dependencies)
-  await generatePackageJson(config, dependencies)
-  await build({
-    // publish: 'never',
-    config: {
-      appId: '',
-      productName: '',
-      copyright: 'Copyright © 2021',
-      directories: {
-        output: 'dist_application',
-        buildResources: 'build',
-        app: 'dist'
-      },
-      asar: true,
-      win: {
-        target: [
-          {
-            target: 'nsis',
-            arch: ['x64'],
-          },
-        ],
-        artifactName: '${productName} Setup ${version}.${ext}',
-      },
-      nsis: {
-        oneClick: false,
-        language: '2052',
-        perMachine: true,
-        allowToChangeInstallationDirectory: true,
-        include: "build/installer.nsh"
-      },
-    }
-  })
-  log('info', `electron 打包完毕, 用时${(Date.now() - startTime) / 1000}s`)
+export default async function(config: Config){
+  try {
+    const startTime = Date.now();
+    log('info', `正在打包electron...`)
+    await preloadBuild(config);
+    const { dependencies } = await mainProcessBuild(config)
+    await generatePackageJson(config, dependencies)
+    console.log(config.pluginConfig.builderOptions)
+    // @ts-ignore
+    await electronBuilder({
+      config: config.pluginConfig.builderOptions}
+    )
+    log('info', `electron 打包完毕, 用时${(Date.now() - startTime) / 1000}s`)
+  } catch (error) {
+    console.log(error) 
+  }
 }

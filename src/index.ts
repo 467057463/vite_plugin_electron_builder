@@ -1,10 +1,12 @@
 import { Plugin, ResolvedConfig, ViteDevServer } from 'vite'
 import { Configuration as ElectronBuilderOptions } from 'electron-builder';
+
+import { resolvePuglinConfig } from './config';
 import handleDev from './handleDev';
 import handleBuild from './handleBuild';
 
 // plugin 配置项
-export interface PluginOptions{
+export interface PluginConfig{
   mainProcessFile?: string
   preloadDir?: string
   builderOptions?: ElectronBuilderOptions
@@ -12,12 +14,12 @@ export interface PluginOptions{
 
 // 合并 vite confing 和 插件 config
 export interface Config extends ResolvedConfig{ 
-  pluginConfig: PluginOptions
+  pluginConfig: PluginConfig
 }
 
-export default function viteElectron(pluginConfig: PluginOptions = {}): Plugin {
+export default function viteElectron(pluginConfig: PluginConfig = {}): Plugin {
   let config: Config;
-
+  
   return{
     name: 'vite-plugin-electron-builder',
 
@@ -25,7 +27,7 @@ export default function viteElectron(pluginConfig: PluginOptions = {}): Plugin {
     configResolved(resolvedConfig: ResolvedConfig) {
       config = {
         ...resolvedConfig,
-        pluginConfig
+        pluginConfig: resolvePuglinConfig(pluginConfig)
       }
     },
 

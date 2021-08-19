@@ -1,38 +1,47 @@
-// @ts-nocheck
+import { Config } from './index';
 import { build } from 'esbuild';
 import path  from 'path';
 import chalk from 'chalk';
-import fs from 'fs/promises';
+import fs from 'fs';
 
-export async function mainProcessBuild(viteConfig, mode, onRebuild?){
-  const define = {};
-  for (const k in viteConfig.env) {
-    define[`process.env.${k}`] = JSON.stringify(viteConfig.env[k])
-  }
+export async function mainProcessBuild(config: Config, onRebuild?){
+  // esbuild deine 注入到 process.env
+  // @todo 继续阅读源码看 vite 是如何暴露到 import.meta.env 上
+  const define = Object.entries(config.env).reduce((acc, [key, value]) => ({
+    ...acc,
+    [`process.env.${key}`]: JSON.stringify(value)
+  }), {})
   
   const dependenciesSet = new Set()
   let buildConfig = {
     entryPoints: [
-      path.join(viteConfig.root, 'src', './background.ts')
+      // @ts-ignore
+      path.join(config.root, config.pluginConfig.mainProcessFile)
     ],
-    outfile: 'dist/main.js',
+    outfile: path.join(config.build.outDir, 'main.js'),
     platform: 'node',
     bundle: true,
     format: 'cjs',
     define,
+    sourcemap: config.mode === 'development' ? 'inline' : false,
+    inject: [ 
+      path.join(
+        __dirname, 
+        '../inject', 
+        `${config.mode === 'development' ? 'devInject.js' : 'buildInject.js'}`
+      )
+    ],
+    watch: config.mode === 'development' ? { onRebuild } : false,
     plugins: [
       {
         name: 'externalize-deps',
         setup(build) {
           build.onResolve({ filter: /.*/ }, (args) => {
-            let id = args.path
+            const id = args.path
             if (id[0] !== '.' && !path.isAbsolute(id)) {
-              if(id[0] !== '@' && id.split("/").length > 1){
-                id = id.split("/")[0];
-              }
               dependenciesSet.add(id);
               return {
-                external: id !== 'vite-plugin-electron-builder/lib' 
+                external: true 
               }
             }
           })
@@ -40,24 +49,8 @@ export async function mainProcessBuild(viteConfig, mode, onRebuild?){
       },
     ],
   }
-  if(mode === 'dev'){
-    buildConfig = {
-      ...buildConfig,
-      sourcemap: 'inline',
-      inject: [path.join(__dirname, '..', 'inject', 'devInject.js')],
-      watch: {
-        onRebuild
-      }
-    }
-  } else {
-    buildConfig = {
-      ...buildConfig,
-      inject: [path.join(__dirname, '..', 'inject', 'buildInject.js')],
-      // minify: true,
-    }
-  }
+  // @ts-ignore
   await build(buildConfig);
-  // console.log([...dependenciesSet])
   return {
     dependencies: [...dependenciesSet]
   }
@@ -75,23 +68,34 @@ export function log(logLevel, message){
   )
 }
 
-export async function preloadBuild(viteConfig, mode = 'dev'){
-  const entryPoints = [];
-  const preloadPath = path.join(viteConfig.root, 'src', 'preload');
-  const res = await fs.readdir(preloadPath);
-  for(const i of res){
-    const file = await fs.stat(path.join(preloadPath, i));
-    if(file.isFile() && ['.js', '.ts'].includes(path.extname(i))){
-      entryPoints.push(path.join(preloadPath, i))
+// 递归读取 preload 文件夹中的js/ts文件
+function readDir(dir, res = []){
+  fs.readdirSync(dir).forEach(item => {
+    const filePath = path.join(dir, item);
+    var stat = fs.lstatSync(filePath);
+    if(!stat.isDirectory()){
+      if(['.ts', '.js'].includes(path.extname(filePath))){
+        // @ts-ignore
+        res.push(filePath)
+      }
+    } else{
+      readDir(filePath, res)
     }
-  }
-  console.log(entryPoints)
+  });
+  return res;
+}
+
+export async function preloadBuild(config: Config){
+  // 读取 preload 文件
+  // @ts-ignore
+  const preloadDir = path.join(config.root, config.pluginConfig.preloadDir);  
+  const entryPoints = readDir(preloadDir);
   await build({
     entryPoints,
-    outdir: 'dist/preload',
+    outdir: path.join(config.build.outDir, 'preload'),
     platform: 'node',
     bundle: true,
-    watch: mode === 'dev',
+    watch: config.mode === 'development',
     plugins: [
       {
         name: 'externalize-deps',
@@ -99,7 +103,6 @@ export async function preloadBuild(viteConfig, mode = 'dev'){
           build.onResolve({ filter: /.*/ }, (args) => {
             const id = args.path
             if (id[0] !== '.' && !path.isAbsolute(id)) {
-              // dependenciesSet.add(id);
               return {
                 external: true
               }

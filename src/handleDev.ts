@@ -1,23 +1,23 @@
-// @ts-nocheck
 import electron from 'electron';
 import path  from 'path';
-import * as child from 'child_process';
+import { ChildProcess, spawn } from 'child_process';
 import { log, mainProcessBuild, preloadBuild }  from './util';
 import { Config } from './index';
 
 const startTime = Date.now();
-let electronProcess: null | child.ChildProcess = null;
+let electronProcess: null | ChildProcess = null;
 let manualRestart = false;
 
 // 编译主进程文件
 async function buildMain(config: Config){
-  function onRebuild(error, result){
+  function onRebuild(error){
     if (error){
       throw(error)
     }
     if(electronProcess && electronProcess.kill){      
       log('info',  `electron 即将重启...`)
       manualRestart = true
+      // @ts-ignore
       process.kill(electronProcess.pid)
       electronProcess = null
 
@@ -27,20 +27,21 @@ async function buildMain(config: Config){
       }, 5000)
     }
   }  
-  await mainProcessBuild(config, 'dev', onRebuild)
+  await mainProcessBuild(config, onRebuild)
 }
+
 // 启动/重新启动 electron
 function startElectron(config: Config){
   const args = [
     '--inspect=5858',
-    path.join(config.root, 'dist', './main.js')
+    path.join(config.root, config.build.outDir, './main.js')
   ]
 
-  electronProcess = child.spawn(electron, args)
-  electronProcess.stdout.on('data', data => {
+  electronProcess = spawn(electron, args)
+  electronProcess?.stdout?.on('data', data => {
     log('info', data)
   })
-  electronProcess.stderr.on('data', data => {
+  electronProcess?.stderr?.on('data', data => {
     log('info', data)
   })
   electronProcess.on('close', () => {
@@ -49,7 +50,6 @@ function startElectron(config: Config){
 }
 
 export default async function(config: Config){
-  // remove(path.join(config.root, config.build.outDir))
   // build preload 文件和主进程文件
   await Promise.all([
     preloadBuild(config),
