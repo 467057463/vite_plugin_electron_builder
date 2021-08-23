@@ -1,3 +1,4 @@
+// @ts-nocheck
 import electron from 'electron';
 import path  from 'path';
 import { ChildProcess, spawn } from 'child_process';

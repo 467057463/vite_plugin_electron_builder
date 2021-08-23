@@ -134,3 +134,22 @@ export function injectDefine(command){
     __preload
   }
 }
+
+export function injectGlobalVariable(command){
+  const __static = command === 'serve' ?
+    `path.join(process.cwd(), 'public')` :
+    `path.join(__dirname, '../../app.asar')`;
+  
+  const __preload = command === 'serve' ?
+    `path.join(process.cwd(), 'dist/preload')` :
+    `path.join(__dirname, '../../app.asar/preload')`
+  
+  return `
+    <script>
+      const path = require('path');
+      window.__static = ${__static};
+      window.__preload = ${__preload};
+    </script>
+  </head>
+  `
+}

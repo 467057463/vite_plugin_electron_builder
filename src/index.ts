@@ -5,7 +5,7 @@ import { resolvePuglinConfig } from './config';
 import handleDev from './handleDev';
 import handleBuild from './handleBuild';
 // import path from 'path';
-import { injectDefine } from './util'
+import { injectGlobalVariable } from './util'
 
 // plugin 配置项
 export interface PluginConfig{
@@ -30,9 +30,9 @@ export default function viteElectron(pluginConfig: PluginConfig = {}): Plugin {
       // if(env.command === 'build'){
       //   config.env.DEV_SERVER_URL = ''        
       // } 
-      return {
-        define: injectDefine(env.command)
-      }
+      // return {
+      //   define: injectDefine(env.command)
+      // }
     },
     // 存储 config 变量
     configResolved(resolvedConfig: ResolvedConfig) {
@@ -43,16 +43,9 @@ export default function viteElectron(pluginConfig: PluginConfig = {}): Plugin {
       }
     },
 
-    // transformIndexHtml(html){
-    //   return html.replace('</head>',
-    //   `
-    // <script>
-    //   window.__static = __dirname;
-    // </script>
-    // </head>
-    //   `
-    //   )
-    // },
+    transformIndexHtml(html){
+      return html.replace('</head>', injectGlobalVariable(config.command))
+    },
 
     // 开发模式/dev
     // @todo httpServer 
