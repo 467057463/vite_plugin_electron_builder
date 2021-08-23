@@ -61,6 +61,11 @@ export default function viteElectron(pluginConfig: PluginConfig = {}): Plugin {
     closeBundle(): void { 
       config.env.DEV_SERVER_URL = null;
       handleBuild(config)
+    },
+    // @ts-ignore
+    load(id){
+      console.log('load', id);
+      // return id;
     }
   }
 }
