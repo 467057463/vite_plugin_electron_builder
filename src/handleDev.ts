@@ -33,7 +33,7 @@ async function buildMain(config: Config){
 // 启动/重新启动 electron
 function startElectron(config: Config){
   const args = [
-    '--inspect=28997',
+    '--inspect=5781',
     path.join(config.root, config.build.outDir, './main.js')
   ]
 

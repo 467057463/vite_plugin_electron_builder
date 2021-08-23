@@ -1,9 +1,11 @@
 import { Plugin, ResolvedConfig, ViteDevServer } from 'vite'
 import { Configuration as ElectronBuilderOptions } from 'electron-builder';
-
+// import path from 'path';
 import { resolvePuglinConfig } from './config';
 import handleDev from './handleDev';
 import handleBuild from './handleBuild';
+// import path from 'path';
+import { injectDefine } from './util'
 
 // plugin 配置项
 export interface PluginConfig{
@@ -22,14 +24,35 @@ export default function viteElectron(pluginConfig: PluginConfig = {}): Plugin {
   
   return{
     name: 'vite-plugin-electron-builder',
-
+    // @ts-ignore
+    config(_, env) {
+      console.log(_, config, env)
+      // if(env.command === 'build'){
+      //   config.env.DEV_SERVER_URL = ''        
+      // } 
+      return {
+        define: injectDefine(env.command)
+      }
+    },
     // 存储 config 变量
     configResolved(resolvedConfig: ResolvedConfig) {
+      console.log(resolvedConfig)
       config = {
         ...resolvedConfig,
         pluginConfig: resolvePuglinConfig(pluginConfig)
       }
     },
+
+    // transformIndexHtml(html){
+    //   return html.replace('</head>',
+    //   `
+    // <script>
+    //   window.__static = __dirname;
+    // </script>
+    // </head>
+    //   `
+    //   )
+    // },
 
     // 开发模式/dev
     // @todo httpServer 
@@ -43,6 +66,7 @@ export default function viteElectron(pluginConfig: PluginConfig = {}): Plugin {
 
     // 生产模式/build
     closeBundle(): void { 
+      config.env.DEV_SERVER_URL = null;
       handleBuild(config)
     }
   }

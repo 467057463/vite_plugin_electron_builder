@@ -5,11 +5,10 @@ import chalk from 'chalk';
 import fs from 'fs';
 
 export async function mainProcessBuild(config: Config, onRebuild?){
-  // esbuild deine 注入到 process.env
-  // @todo 继续阅读源码看 vite 是如何暴露到 import.meta.env 上
+  // esbuild deine 注入到 import.meta.env
   const define = Object.entries(config.env).reduce((acc, [key, value]) => ({
     ...acc,
-    [`process.env.${key}`]: JSON.stringify(value)
+    [`import.meta.env.${key}`]: JSON.stringify(value)
   }), {})
   
   const dependenciesSet = new Set()
@@ -86,6 +85,11 @@ function readDir(dir, res = []){
 }
 
 export async function preloadBuild(config: Config){
+  const define = Object.entries(config.env).reduce((acc, [key, value]) => ({
+    ...acc,
+    [`import.meta.env.${key}`]: JSON.stringify(value)
+  }), {})
+
   // 读取 preload 文件
   // @ts-ignore
   const preloadDir = path.join(config.root, config.pluginConfig.preloadDir);  
@@ -95,6 +99,7 @@ export async function preloadBuild(config: Config){
     outdir: path.join(config.build.outDir, 'preload'),
     platform: 'node',
     bundle: true,
+    define,
     watch: config.mode === 'development',
     plugins: [
       {
@@ -112,4 +117,20 @@ export async function preloadBuild(config: Config){
       },
     ],
   })
+}
+
+// 渲染进程注入define
+export function injectDefine(command){
+  const __static = command === 'serve' ? 
+    JSON.stringify(path.join(process.cwd(), 'public')) : 
+    JSON.stringify(path.join(__dirname, '../../app.asar'));
+
+  const __preload = command === 'serve' ?
+    JSON.stringify(path.join(process.cwd(), 'dist/preload')) : 
+    JSON.stringify(path.join(__dirname, '../../app.asar/preload'));
+
+  return {
+    __static,
+    __preload
+  }
 }
