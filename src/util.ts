@@ -101,6 +101,14 @@ export async function preloadBuild(config: Config){
     bundle: true,
     define,
     watch: config.mode === 'development',
+    sourcemap: config.mode === 'development' ? 'inline' : false,
+    inject: [ 
+      path.join(
+        __dirname, 
+        '../inject', 
+        `${config.mode === 'development' ? 'devInject.js' : 'buildInject.js'}`
+      )
+    ],
     plugins: [
       {
         name: 'externalize-deps',
