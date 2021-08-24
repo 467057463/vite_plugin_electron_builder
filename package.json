@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@babel/core": "^7.15.0",
+    "builtin-modules": "^3.2.0",
     "chalk": "^4.1.2",
     "electron": "^13.1.9",
     "electron-builder": "^22.11.7",

@@ -1,5 +1,6 @@
 import { Plugin, ResolvedConfig, ViteDevServer } from 'vite'
 import { Configuration as ElectronBuilderOptions } from 'electron-builder';
+import builtins from 'builtin-modules';
 // import path from 'path';
 import { resolvePuglinConfig } from './config';
 import handleDev from './handleDev';
@@ -25,18 +26,18 @@ export default function viteElectron(pluginConfig: PluginConfig = {}): Plugin {
   return{
     name: 'vite-plugin-electron-builder',
     // @ts-ignore
-    config(_, env) {
-      console.log(_, config, env)
+    // config(_, env) {
+      // console.log(_, config, env)
       // if(env.command === 'build'){
       //   config.env.DEV_SERVER_URL = ''        
       // } 
       // return {
       //   define: injectDefine(env.command)
       // }
-    },
+    // },
     // 存储 config 变量
     configResolved(resolvedConfig: ResolvedConfig) {
-      console.log(resolvedConfig)
+      // console.log(resolvedConfig)
       config = {
         ...resolvedConfig,
         pluginConfig: resolvePuglinConfig(pluginConfig)
@@ -62,10 +63,22 @@ export default function viteElectron(pluginConfig: PluginConfig = {}): Plugin {
       config.env.DEV_SERVER_URL = null;
       handleBuild(config)
     },
+
+    // 解决 vite 中不能使用 node 模块问题
     // @ts-ignore
-    load(id){
-      console.log('load', id);
-      // return id;
+    transform(code, id){
+      const _id = id.replace('__vite-browser-external:', '');
+      if(builtins.includes(_id)){
+        const builtinMolule = require(_id);
+        const keys = Object.keys(builtinMolule);
+        return {
+          code: `
+            const m = require('${_id}');
+            export const {${keys.join(', ')}} = m;        
+            export default m;
+          `
+        }
+      }
     }
   }
 }
