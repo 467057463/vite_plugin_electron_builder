@@ -8,6 +8,10 @@ import handleBuild from './handleBuild';
 // import path from 'path';
 import { injectGlobalVariable } from './util'
 
+export interface ImportMetaEnv {
+  DEV_SERVER_URL: string
+}
+
 // plugin 配置项
 export interface PluginConfig{
   mainProcessFile?: string

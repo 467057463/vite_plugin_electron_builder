@@ -22,7 +22,7 @@ export async function mainProcessBuild(config: Config, onRebuild?){
     bundle: true,
     format: 'cjs',
     define,
-    sourcemap: config.mode === 'development' ? 'inline' : false,
+    sourcemap: config.mode === 'development' ? true : false,
     inject: [ 
       path.join(
         __dirname, 
@@ -101,12 +101,12 @@ export async function preloadBuild(config: Config){
     bundle: true,
     define,
     watch: config.mode === 'development',
-    sourcemap: config.mode === 'development' ? 'inline' : false,
+    sourcemap: config.mode === 'development' ? true : false,
     inject: [ 
       path.join(
         __dirname, 
         '../inject', 
-        `${config.mode === 'development' ? 'devInject.js' : 'buildInject.js'}`
+        `${config.mode === 'development' ? 'devInject.js' : 'buildPreloadInject.js'}`
       )
     ],
     plugins: [
