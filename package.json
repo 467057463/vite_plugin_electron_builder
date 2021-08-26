@@ -2,7 +2,9 @@
   "name": "vite-plugin-electron-builder",
   "version": "0.0.12",
   "license": "MIT",
-  "author": "M2",
+  "description": "Easily Build Your vite With Electron",
+  "repository": "https://github.com/467057463/vite_plugin_electron_builder.git",
+  "author": "M2 <467057463@qq.com>",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -11,7 +13,12 @@
     "build-bundle": "esbuild src/index.ts --bundle --platform=node --target=node12 --external:electron-builder --external:electron --external:esbuild --external:chalk --external:fs-extra --outfile=dist/index.js",
     "build-types": "tsc -p . --emitDeclarationOnly --outDir temp && api-extractor run && rimraf temp"
   },
-  "keywords": [],
+  "keywords": [
+    "vite-plugin",
+    "vite",
+    "electron",
+    "electron-builder"
+  ],
   "devDependencies": {
     "@microsoft/api-extractor": "^7.18.5",
     "@types/node": "^16.6.1",
@@ -20,7 +27,6 @@
     "vite": "^2.5.0"
   },
   "dependencies": {
-    "@babel/core": "^7.15.0",
     "builtin-modules": "^3.2.0",
     "chalk": "^4.1.2",
     "electron": "^13.1.9",

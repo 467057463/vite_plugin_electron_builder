@@ -35,7 +35,8 @@ async function buildMain(config: Config){
 function startElectron(config: Config){
   const args = [
     '--inspect=5781',
-    path.join(config.root, config.build.outDir, './main.js')
+    path.join(config.root, config.build.outDir, './main.js'),
+    '--remote-debugging-port=9222'
   ]
 
   electronProcess = spawn(electron, args)

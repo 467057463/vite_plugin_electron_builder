@@ -22,15 +22,15 @@ export async function mainProcessBuild(config: Config, onRebuild?){
     bundle: true,
     format: 'cjs',
     define,
-    sourcemap: config.mode === 'development' ? true : false,
+    sourcemap: config.command === 'serve' ? true : false,
     inject: [ 
       path.join(
         __dirname, 
         '../inject', 
-        `${config.mode === 'development' ? 'devInject.js' : 'buildInject.js'}`
+        `${config.command === 'serve' ? 'devInject.js' : 'buildInject.js'}`
       )
     ],
-    watch: config.mode === 'development' ? { onRebuild } : false,
+    watch: config.command === 'serve' ? { onRebuild } : false,
     plugins: [
       {
         name: 'externalize-deps',
@@ -100,13 +100,13 @@ export async function preloadBuild(config: Config){
     platform: 'node',
     bundle: true,
     define,
-    watch: config.mode === 'development',
-    sourcemap: config.mode === 'development' ? true : false,
+    watch: config.command === 'serve',
+    sourcemap: config.command === 'serve' ? true : false,
     inject: [ 
       path.join(
         __dirname, 
         '../inject', 
-        `${config.mode === 'development' ? 'devInject.js' : 'buildPreloadInject.js'}`
+        `${config.command === 'serve' ? 'devInject.js' : 'buildPreloadInject.js'}`
       )
     ],
     plugins: [
