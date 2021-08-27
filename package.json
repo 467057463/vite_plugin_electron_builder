@@ -7,6 +7,9 @@
   "author": "M2 <467057463@qq.com>",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "bin": {
+    "vpeb-init": "bin/index.js"
+  },
   "scripts": {
     "dev": "tsc -p . -w --incremental",
     "build": "rimraf dist && run-s build-bundle build-types",
@@ -28,6 +31,7 @@
   },
   "dependencies": {
     "builtin-modules": "^3.2.0",
+    "cac": "^6.7.3",
     "chalk": "^4.1.2",
     "electron": "^13.1.9",
     "electron-builder": "^22.11.7",
