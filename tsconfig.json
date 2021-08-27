@@ -1,6 +1,6 @@
 {
   "include": ["src"],
-  "exclude": ["**/*.spec.ts"],
+  "exclude": ["**/*.spec.ts", "template/**"],
   "compilerOptions": {
     "outDir": "dist",
     "target": "ES2019",
