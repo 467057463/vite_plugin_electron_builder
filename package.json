@@ -1,6 +1,6 @@
 {
   "name": "vite-plugin-electron-builder",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "license": "MIT",
   "description": "Easily Build Your vite With Electron",
   "repository": "https://github.com/467057463/vite_plugin_electron_builder.git",
