@@ -151,3 +151,4 @@ import path from 'path';
 - [ ] 精读 esbuild 文档，优化现在在编辑主进程、preload 选项，用更高效的写法
 - [ ] 解决一些 typescript 遗漏问题
 - [ ] api 文档
+- [ ] 自动化发布
