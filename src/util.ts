@@ -94,6 +94,7 @@ export async function preloadBuild(config: Config){
   // @ts-ignore
   const preloadDir = path.join(config.root, config.pluginConfig.preloadDir);  
   const entryPoints = readDir(preloadDir);
+  const dependenciesSet = new Set()
   await build({
     entryPoints,
     outdir: path.join(config.build.outDir, 'preload'),
@@ -116,8 +117,9 @@ export async function preloadBuild(config: Config){
           build.onResolve({ filter: /.*/ }, (args) => {
             const id = args.path
             if (id[0] !== '.' && !path.isAbsolute(id)) {
+              dependenciesSet.add(id);
               return {
-                external: true
+                external: true 
               }
             }
           })
@@ -125,6 +127,9 @@ export async function preloadBuild(config: Config){
       },
     ],
   })
+  return {
+    dependencies: [...dependenciesSet]
+  }
 }
 
 // 渲染进程注入define

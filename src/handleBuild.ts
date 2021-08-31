@@ -5,6 +5,7 @@ import { Config } from './index'
 import { mainProcessBuild, log, preloadBuild } from './util';
 
 async function generatePackageJson(config: Config, dependencies) {
+  // console.log(dependencies)
   const original = require(path.join(config.root, './package.json'))
   const result = {
     name: original.name,
@@ -25,10 +26,11 @@ export default async function(config: Config){
   try {
     const startTime = Date.now();
     log('info', `正在打包electron...`)
-    await preloadBuild(config);
+    const { dependencies: preloaDependencies } = await preloadBuild(config);
     const { dependencies } = await mainProcessBuild(config)
-    await generatePackageJson(config, dependencies)
-    console.log(config.pluginConfig.builderOptions)
+    await generatePackageJson(config, 
+      Array.from(new Set([...dependencies, ...preloaDependencies]))
+    )
     // @ts-ignore
     await electronBuilder({
       config: config.pluginConfig.builderOptions}
