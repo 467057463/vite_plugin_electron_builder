@@ -1,3 +1,7 @@
+# 本项目暂时废弃
+
+目前遇到在渲染进程中使用 node 依赖时，不能正确编译，vite 有意剔除了在前端模式下的node模块引用，暂时还未找到解决方案，抱歉了各位。
+
 # Vite white Electron
 
 如果你喜欢 vite 也正好喜欢 electron 不妨试试本插件，无缝配置，快速的将vite 和 electron 整合在一起。
